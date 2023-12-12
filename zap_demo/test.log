@@ -1,0 +1,2 @@
+{"level":"info","ts":1702375174.3513405,"msg":"/hello","status":200,"method":"GET","path":"/hello","query":"sunsmile=234","user-agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36","errors":"","cost":0.0004477}
+{"level":"info","ts":1702375174.8087792,"msg":"/favicon.ico","status":404,"method":"GET","path":"/favicon.ico","query":"","user-agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36","errors":"","cost":0}
