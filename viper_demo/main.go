@@ -23,7 +23,7 @@ func main() {
 	viper.SetDefault("fileDir", "./")
 	// 读取配置文件
 	viper.SetConfigName("config") // 配置文件名称（无扩展名）
-	viper.SetConfigType("yaml")   // 如果配置文件的名称中没有扩展名，则需要配置此项
+	viper.SetConfigType("yaml")   // 配置文件为远程配置，则需要设置这项
 	// viper.SetConfigFile("config.yaml") // 设置配置文件
 	viper.AddConfigPath("/etc/appname")   // 查找配置文件所在的路径
 	viper.AddConfigPath("$HOME/.appname") // 多次调用以添加多个搜索路径

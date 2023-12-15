@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/natefinch/lumberjack"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -34,8 +35,14 @@ func getEncoder() zapcore.Encoder {
 }
 
 func getLogWrite() zapcore.WriteSyncer {
-	file, _ := os.Create("./test.log")
-	return zapcore.AddSync(file)
+	lumberJackLogger := &lumberjack.Logger{
+		Filename:   "./test.log",
+		MaxSize:    1,
+		MaxBackups: 5,
+		MaxAge:     30,
+		Compress:   false,
+	}
+	return zapcore.AddSync(lumberJackLogger)
 }
 
 // GinLogger 接收gin框架默认的日志
