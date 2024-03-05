@@ -49,5 +49,9 @@
         <env name="PATH" value="$GoBinDirs$" />
       </envs>
     </TaskOptions>
+    <enabled-global>
+      <option value="go fmt" />
+      <option value="goimports" />
+    </enabled-global>
   </component>
 </project>

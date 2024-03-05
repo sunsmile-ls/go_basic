@@ -1,6 +1,13 @@
 package main
 
 import (
+	"bluebell/controller"
+	"bluebell/dao/mysql"
+	"bluebell/dao/redis"
+	"bluebell/logger"
+	"bluebell/pkg/snowflake"
+	"bluebell/routes"
+	"bluebell/settings"
 	"context"
 	"fmt"
 	"log"
@@ -9,13 +16,6 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
-	"wabapp/dao/mysql"
-	"wabapp/dao/redis"
-	"wabapp/logger"
-	"wabapp/routes"
-	"wabapp/settings"
-
-	"github.com/spf13/viper"
 
 	"go.uber.org/zap"
 )
@@ -25,27 +25,39 @@ func main() {
 	if err := settings.Init(); err != nil {
 		fmt.Printf("init settings failed, err:%v\n", err)
 	}
+	fmt.Println(settings.Conf)
 	// 2. 初始化日志
-	if err := logger.Init(); err != nil {
+	if err := logger.Init(settings.Conf.LogConfig, settings.Conf.Mode); err != nil {
 		fmt.Printf("init logger failed, err:%v\n", err)
 	}
 	defer zap.L().Sync()
 	// 3. 初始化MySQL连接
-	if err := mysql.Init(); err != nil {
+	if err := mysql.Init(settings.Conf.MySQLConfig); err != nil {
 		fmt.Printf("init mysql failed, err:%v\n", err)
 	}
 	defer mysql.Close()
 	// 4. 初始化Redis连接
-	if err := redis.Init(); err != nil {
+	if err := redis.Init(settings.Conf.RedisConfig); err != nil {
 		fmt.Printf("init redis failed, err:%v\n", err)
 		return
 	}
 	defer redis.Close()
+
+	if err := snowflake.Init(settings.Conf.StartTime, settings.Conf.MachineID); err != nil {
+		fmt.Printf("init snowflake failed, err:%v\n", err)
+		return
+	}
 	// 5. 注册路由
-	r := routes.Setup()
-	// 6. 优雅关机
+	r := routes.Setup(settings.Conf.Mode)
+
+	// 6. 初始化gin框架内置的校验器使用的翻译器
+	if err := controller.InitTrans("zh"); err != nil {
+		fmt.Printf("init validator trans failed, err:%v\n", err)
+		return
+	}
+	// 7. 优雅关机
 	srv := http.Server{
-		Addr:    fmt.Sprintf(":%d", viper.GetInt("app.port")),
+		Addr:    fmt.Sprintf(":%d", settings.Conf.Port),
 		Handler: r,
 	}
 
