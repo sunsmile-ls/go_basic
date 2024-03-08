@@ -21,7 +21,7 @@ func CheckUserExist(username string) (err error) {
 	// 查询数据库，判断用户是否存在
 	sqlStr := `select count(user_id) from user where username = ?`
 	var count int64
-	if err := db.Get(&count, sqlStr, username); err != nil {
+	if err = db.Get(&count, sqlStr, username); err != nil {
 		return err
 	}
 	if count > 0 {

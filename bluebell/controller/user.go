@@ -28,6 +28,7 @@ func SignUpHandle(c *gin.Context) {
 			//	"msg": err.Error(),
 			//})
 			ResponseError(c, CodeInvalidParam)
+			return
 		}
 		// validator.ValidationErrors 类型错误进行翻译
 		// 并使用 removeTopStruct 函数去除字段名中的结构体名称标识
@@ -78,7 +79,8 @@ func LoginHandle(c *gin.Context) {
 	}
 
 	// 2. 登录
-	if err := logic.Login(p); err != nil {
+	tokenString, err := logic.Login(p)
+	if err != nil {
 		zap.L().Error("logic.Login failed", zap.String("username", p.Username), zap.Error(err))
 		if err == mysql.ErrorUserNotExist {
 			ResponseError(c, CodeUserNoExist)
@@ -88,6 +90,6 @@ func LoginHandle(c *gin.Context) {
 	}
 
 	// 3.返回响应
-	ResponseSuccess(c, CodeSuccess)
+	ResponseSuccess(c, tokenString)
 
 }
