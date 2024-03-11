@@ -5,17 +5,12 @@ import (
 	"crypto/md5"
 	"database/sql"
 	"encoding/hex"
-	"errors"
 )
 
 // 数据库的每个语句要原子性
 const secret = "sunsmile.com"
 
-var (
-	ErrorUserExist       = errors.New("用户已存在")
-	ErrorUserNotExist    = errors.New("用户不存在")
-	ErrorInvalidPassword = errors.New("用户名或密码错误")
-)
+
 
 func CheckUserExist(username string) (err error) {
 	// 查询数据库，判断用户是否存在

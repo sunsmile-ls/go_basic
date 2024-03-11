@@ -25,9 +25,8 @@ func Setup(mode string) *gin.Engine {
 	v1.POST("/login", controller.LoginHandle)
 	v1.Use(middlewares.JWTAuthMiddleware()) // 应用JWT认证中间件
 	{
-		v1.GET("/community", func(ctx *gin.Context) {
-			
-		})
+		v1.GET("/community", controller.CommunityHandler)
+		v1.GET("/community/:id", controller.CommunityDetailHandler)
 	}
 	r.NoRoute(func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
