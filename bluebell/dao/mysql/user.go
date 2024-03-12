@@ -10,8 +10,6 @@ import (
 // 数据库的每个语句要原子性
 const secret = "sunsmile.com"
 
-
-
 func CheckUserExist(username string) (err error) {
 	// 查询数据库，判断用户是否存在
 	sqlStr := `select count(user_id) from user where username = ?`
@@ -58,4 +56,12 @@ func Login(user *models.User) (err error) {
 		return ErrorInvalidPassword
 	}
 	return nil
+}
+
+// GetUserById 根据userId 查询用户信息
+func GetUserById(pid int64) (user *models.User, err error) {
+	user = new(models.User)
+	sqlStr := `select user_id, username from user where user_id = ?`
+	err = db.Get(user, sqlStr, pid)
+	return
 }

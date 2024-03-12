@@ -3,6 +3,7 @@ package controller
 import (
 	"bluebell/logic"
 	"bluebell/models"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
@@ -38,4 +39,34 @@ func CreatePostHandler(c *gin.Context) {
 	}
 	// 3. 返回响应
 	ResponseSuccess(c, nil)
+}
+
+// GetPostDetailHandler 获取帖子详情
+func GetPostDetailHandler(c *gin.Context) {
+	// 1. 获取参数（从URL中获取帖子的id）
+	idStr := c.Param("id")
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
+		zap.L().Error("get post detail with invalid param", zap.Error(err))
+		ResponseError(c, CodeInvalidParam)
+	}
+	// 2. 根据id查询帖子数据
+	data, err := logic.GetPostById(id)
+	if err != nil {
+		zap.L().Error("logic.GetPostById(pid) failed", zap.Error(err))
+		ResponseError(c, CodeServerBusy)
+	}
+	// 3. 返回响应
+	ResponseSuccess(c, data)
+}
+
+// GetPostListHandler 获取帖子列表处理函数
+func GetPostListHandler(c *gin.Context) {
+	page, size := getPageInfo(c)
+	data, err := logic.GetPostList(page, size)
+	if err != nil {
+		zap.L().Error("logic.GetPostList(page, size) failed", zap.Error(err))
+		ResponseError(c, CodeServerBusy)
+	}
+	ResponseSuccess(c, data)
 }
