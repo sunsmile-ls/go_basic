@@ -2,6 +2,7 @@ package logic
 
 import (
 	"bluebell/dao/mysql"
+	"bluebell/dao/redis"
 	"bluebell/models"
 	"bluebell/pkg/snowflake"
 
@@ -16,7 +17,9 @@ func CreatePost(p *models.Post) (err error) {
 	if err != nil {
 		return err
 	}
-	return nil
+	// redis 中添加数据
+	err = redis.CreatePost(p.ID)
+	return
 }
 
 func GetPostById(id int64) (postDetail *models.ApiPostDetail, err error) {
@@ -53,7 +56,7 @@ func GetPostList(page, size int64) (data []*models.ApiPostDetail, err error) {
 	posts, err := mysql.GetPostList(page, size)
 	if err != nil {
 		zap.L().Error("mysql.GetPostList(page, size)", zap.Error(err))
-		return 
+		return
 	}
 	data = make([]*models.ApiPostDetail, 0, len(posts))
 	// 遍历 posts 填充数据
@@ -77,5 +80,5 @@ func GetPostList(page, size int64) (data []*models.ApiPostDetail, err error) {
 		}
 		data = append(data, postDetail)
 	}
-	return 
+	return
 }
