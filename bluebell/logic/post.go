@@ -18,7 +18,7 @@ func CreatePost(p *models.Post) (err error) {
 		return err
 	}
 	// redis 中添加数据
-	err = redis.CreatePost(p.ID)
+	err = redis.CreatePost(p.ID, p.CommunityID)
 	return
 }
 
@@ -124,10 +124,27 @@ func GetPostList2(p *models.ParamPostList) (data []*models.ApiPostDetail, err er
 	}
 	return
 }
+
+// GetCommunityPostList 根据分类获取 posts 数据
+func GetCommunityPostList(p *models.ParamPostList) (data []*models.ApiPostDetail, err error) {
+	// 1. 根据分类帖子的ids
+	redis.GetCommunityPostIDsInOrder()
+	// 2. 根据 ids 获取 帖子列表
+
+	panic("need implement")
+}
+
+// GetPostListNew 获取帖子列表
 func GetPostListNew(p *models.ParamPostList) (data []*models.ApiPostDetail, err error) {
 	if p.CommunityID == 0 {
 		// 执行全局的搜索
 		data, err = GetPostList2(p)
+	} else {
+		data, err = GetCommunityPostList(p)
+	}
+	if err != nil {
+		zap.L().Error("GetPostListNew failed", zap.Error(err))
+		return nil, err
 	}
 	return
 }

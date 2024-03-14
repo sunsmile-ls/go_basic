@@ -24,6 +24,17 @@ func GetPostIDsInOrder(p *models.ParamPostList) ([]string, error) {
 	return getIDsFormKey(key, p.Page, p.Size)
 }
 
+// GetCommunityPostIDsInOrder 通过分类获取帖子列表的ids
+func GetCommunityPostIDsInOrder(p *models.ParamPostList) ([]string, error) {
+	orderKey := getRedisKey(KeyPostTimeZSet)
+	if p.Order == models.OrderScore {
+		orderKey = getRedisKey(KeyPostScoreZSet)
+	}
+	cKey := getRedisKey(KeyCommunitySetPF + strconv.Itoa(int(p.CommunityID)))
+
+}
+
+// GetPostVoteData 获得投票的数据
 func GetPostVoteData(ids []string) (data []int64, err error) {
 	pipeline := client.Pipeline()
 
