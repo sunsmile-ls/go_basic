@@ -2,6 +2,8 @@ package redis
 
 import (
 	"bluebell/models"
+	"strconv"
+	"time"
 
 	"github.com/go-redis/redis"
 )
@@ -26,12 +28,31 @@ func GetPostIDsInOrder(p *models.ParamPostList) ([]string, error) {
 
 // GetCommunityPostIDsInOrder 通过分类获取帖子列表的ids
 func GetCommunityPostIDsInOrder(p *models.ParamPostList) ([]string, error) {
+
+	// 使用 zinterstore 把分区的帖子set与帖子分数的 zset 生成一个新的zset
+	// 针对新的zset 按之前的逻辑取数据
+
 	orderKey := getRedisKey(KeyPostTimeZSet)
 	if p.Order == models.OrderScore {
 		orderKey = getRedisKey(KeyPostScoreZSet)
 	}
 	cKey := getRedisKey(KeyCommunitySetPF + strconv.Itoa(int(p.CommunityID)))
 
+	// 利用缓存key减少zinterstore执行的次数
+	key := orderKey + strconv.Itoa(int(p.CommunityID))
+	if client.Exists(key).Val() < 1 {
+		// 不存在，需要计算
+		pipeline := client.Pipeline()
+		pipeline.ZInterStore(key, redis.ZStore{
+			Aggregate: "MAX",
+		}, cKey, orderKey)
+		pipeline.Expire(key, 60*time.Second) // 设置超时时间
+		_, err := pipeline.Exec()
+		if err != nil {
+			return nil, err
+		}
+	}
+	return getIDsFormKey(key, p.Page, p.Size)
 }
 
 // GetPostVoteData 获得投票的数据
